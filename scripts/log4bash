@@ -7,8 +7,29 @@ declare -r LEVEL_WARN=3
 declare -r LEVEL_ERROR=4
 declare -r LEVEL_FATAL=5
 declare -r LEVEL_OFF=10
-declare -r date_format="date \"+%Y-%m-%d %H:%M:%S\""
 declare -r DEFAULT_LEVEL=$LEVEL_INFO
+
+declare -r TEXT_BLACK='\e[0;30m'
+declare -r TEXT_RED='\e[0;31m'
+declare -r TEXT_GREEN='\e[0;32m'
+declare -r TEXT_YELLOW='\e[0;33m'
+declare -r TEXT_BLUE='\e[0;34m'
+declare -r TEXT_PURPLE='\e[0;35m'
+declare -r TEXT_CYAN='\e[0;36m'
+declare -r TEXTWHITE='\e[0;37m'
+
+declare -r date_format="date \"+%Y-%m-%d %H:%M:%S\""
+
+COLOR_TRACE=$TEXT_CYAN
+COLOR_DEBUG=$TEXT_GREEN
+COLOR_INFO=$TEXT_BLACK
+COLOR_WARN=$TEXT_RED
+COLOR_ERROR=$TEXT_RED
+COLOR_FATAL=$TEXT_RED
+
+
+#LOG_LEVEL=$DEFAULT_LEVEL
+LOG_LEVEL=0
 
 SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
 if [[ -f $SCRIPT_DIR/log4bash.conf ]]
@@ -25,65 +46,71 @@ shopt -s expand_aliases
 
 
 function __log() {
-    ARGS=`getopt -o "h" -l "level:" -n "log4j" -- "$@"`
+    ARGS=`getopt -o "h,m" -l "level:" -n "log4j" -- "$@"`
     eval set -- "$ARGS"
     while true;
     do
 	    case "$1" in
 
         --level)
-		  LOG_LEVEL=$2
-		  shift ;;
+		  local _level=$2
+          local _log_level=$(echo $2 | sed -r 's/LEVEL_([A-Z]*)/\1/' )
+		  shift 2 ;;
+        -m)
+          shift ;;
         *)
 		  shift
 	      break;;
 	    esac
     done
-    
+    if [[ $_level -ge $LOG_LEVEL ]]
+    then
+        echo -e "$TEXT_RED[$(eval $date_format)][${FUNCNAME[2]}()][${0##*/}][${_log_level}] $TEXT_BLACK $@"
+    fi
 }
 
 ############################################################
-#########    logs trace                      ################
+#########    logs trace                      ###############
 ############################################################
-function logtrace {
-    echo "[$(eval $date_format)][${FUNCNAME[1]}()][TRACE] $1"
+function log_trace {
+    __log --level LEVEL_TRACE -m $@
 }
 
 ############################################################
-#########    logs debug                      ################
+#########    logs debug                      ###############
 ############################################################
-function logdebug {
-    echo "[$(eval $date_format)][${FUNCNAME[1]}()][DEBUG] $1"
+function log_debug {
+    __log --level LEVEL_DEBUG -m $@
 }
 
 
 ############################################################
 #########    logs info                      ################
 ############################################################
-function loginfo {
-    echo "[$(eval $date_format)][${FUNCNAME[1]}()][INFO] $1"
+function log_info {
+    __log --level LEVEL_INFO -m $@
 }
 
 ############################################################
 #########    logs warning                   ################
 ############################################################
-function logwarning {
-    echo "[$(eval $date_format)][${FUNCNAME[1]}()][WARNING] $1" >&2
+function log_warning {
+    __log --level LEVEL_WARNING -m $@
 }
 
 
 ############################################################
 #########    logs error                     ################
 ############################################################
-function logerror {
-    echo "[$(eval $date_format)][${FUNCNAME[1]}()][ERROR] $1" >&2
+function log_error {
+    __log --level LEVEL_ERROR -m $@
 }
 
 ############################################################
 #########    logs fatal                     ################
 ############################################################
-function logerror {
-    echo "[$(eval $date_format)][${FUNCNAME[1]}()][ERROR] $1" >&2
+function log_fatal {
+    __log --level LEVEL_FATAL -m $@
 }
 
 
