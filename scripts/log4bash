@@ -1,0 +1,105 @@
+#!/bin/bash
+
+declare -r LEVEL_TRACE=0
+declare -r LEVEL_DEBUG=1
+declare -r LEVEL_INFO=2
+declare -r LEVEL_WARN=3
+declare -r LEVEL_ERROR=4
+declare -r LEVEL_FATAL=5
+declare -r LEVEL_OFF=10
+declare -r date_format="date \"+%Y-%m-%d %H:%M:%S\""
+declare -r DEFAULT_LEVEL=$LEVEL_INFO
+
+SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
+if [[ -f $SCRIPT_DIR/log4bash.conf ]]
+then
+    source ${SCRIPT_DIR}/log4bash.conf
+fi
+
+if [[ -f $(pwd)/log4bash.conf ]]
+then
+    source $(pwd)/log4bash.conf
+fi
+
+shopt -s expand_aliases
+
+
+function __log() {
+    ARGS=`getopt -o "h" -l "level:" -n "log4j" -- "$@"`
+    eval set -- "$ARGS"
+    while true;
+    do
+	    case "$1" in
+
+        --level)
+		  LOG_LEVEL=$2
+		  shift ;;
+        *)
+		  shift
+	      break;;
+	    esac
+    done
+    
+}
+
+############################################################
+#########    logs trace                      ################
+############################################################
+function logtrace {
+    echo "[$(eval $date_format)][${FUNCNAME[1]}()][TRACE] $1"
+}
+
+############################################################
+#########    logs debug                      ################
+############################################################
+function logdebug {
+    echo "[$(eval $date_format)][${FUNCNAME[1]}()][DEBUG] $1"
+}
+
+
+############################################################
+#########    logs info                      ################
+############################################################
+function loginfo {
+    echo "[$(eval $date_format)][${FUNCNAME[1]}()][INFO] $1"
+}
+
+############################################################
+#########    logs warning                   ################
+############################################################
+function logwarning {
+    echo "[$(eval $date_format)][${FUNCNAME[1]}()][WARNING] $1" >&2
+}
+
+
+############################################################
+#########    logs error                     ################
+############################################################
+function logerror {
+    echo "[$(eval $date_format)][${FUNCNAME[1]}()][ERROR] $1" >&2
+}
+
+############################################################
+#########    logs fatal                     ################
+############################################################
+function logerror {
+    echo "[$(eval $date_format)][${FUNCNAME[1]}()][ERROR] $1" >&2
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
