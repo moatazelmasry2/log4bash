@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#logger.level, 
+#logger.level.debug.color=TEXT_BLACK
+#logger.level.debug.appender=">&2"
+    #logger.level.info.appender=">&1"
+    #logger.level.trace.appender=">>bla.log"
+
+
 declare -r LEVEL_TRACE=0
 declare -r LEVEL_DEBUG=1
 declare -r LEVEL_INFO=2
@@ -65,7 +72,8 @@ function __log() {
     done
     if [[ $_level -ge $LOG_LEVEL ]]
     then
-        echo -e "$TEXT_RED[$(eval $date_format)][${FUNCNAME[2]}()][${0##*/}][${_log_level}] $TEXT_BLACK $@"
+        local color=$(eval echo \$COLOR_${_log_level}) 
+        echo -e "${color}[$(eval $date_format)][${FUNCNAME[2]}()][${0##*/}][${_log_level}] $TEXT_BLACK $@"
     fi
 }
 
